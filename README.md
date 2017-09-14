@@ -10,14 +10,14 @@ No warranty, explicit or implied, with usage of this repository.  As such, we do
 Please refer to the [Jaspersoft Forums](https://community.jaspersoft.com/questions) for support.
 
 Related [Jaspersoft Forum](https://community.jaspersoft.com/questions) Posts:
-[[SOLVED] Getting Atk/Swing errors running a report](https://community.jaspersoft.com/questions/1064816/solved-getting-atkswing-errors-running-report)
+
+* [[SOLVED] Getting Atk/Swing errors running a report](https://community.jaspersoft.com/questions/1064816/solved-getting-atkswing-errors-running-report)
 
 # Pre-built Docker image
 A prebuilt docker image is available at [agois/jasperserver-ce](https://hub.docker.com/r/agois/jasperserver-ce/).
 
 # Building your own image
-Download the latest JasperServer and put in `./resources`
-[JasperServer CE Releases](http://community.jaspersoft.com/project/jasperreports-server/releases)
+Download the latest JasperServer and put in `./resources`: [JasperServer CE Releases](http://community.jaspersoft.com/project/jasperreports-server/releases)
 
 Build a new Docker image and store it in local Docker
 ```bash
@@ -26,10 +26,10 @@ docker build -t jasperserver-ce .
 
 Tag the local Docker image with the Docker Hub username/repo:version
 ```bash
-docker tag jasperserver-community agois/jasperserver-ce:6.4.0
+docker tag jasperserver-ce agois/jasperserver-ce:6.4.0
 ```
 
-Push new Docker image to Docker Hi
+Push new Docker image to Docker Hub
 ```bash
 docker push agois/jasperserver-ce:6.4.0
 ```
@@ -48,7 +48,7 @@ version: '3'
 
 services:
   jasperserver:
-    image: agois/jasperserver-community:6.4.0
+    image: agois/jasperserver-ce:6.4.0
     ports:
       - "8080:8080"
       - "8443:8443"
