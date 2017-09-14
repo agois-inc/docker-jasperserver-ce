@@ -1,0 +1,41 @@
+# Copyright (c) 2016. TIBCO Software Inc.
+# This file is subject to the license terms contained
+# in the license file that is distributed with this file.
+# version: 6.3.0-v1.0.4
+
+version: '3'
+
+services:
+  jasperserver:
+    image: agois/jasperserver-ce:6.4.0
+    ports:
+      - "8080:8080"
+      - "8443:8443"
+    depends_on:
+      - jasperdatabase
+    env_file: .env
+    environment:
+      - DB_HOST=jasperdatabase
+    volumes:
+      - jasper_webapp:/usr/local/tomcat/webapps/jasperserver
+      - jasper_license:/usr/local/share/jasperreports-ce/license 
+      - jasper_customization:/usr/local/share/jasperreports-ce/customization
+    networks:
+      - reportsnet
+
+  jasperdatabase:
+    image: postgres:9.5
+    env_file: .env
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - reportsnet
+
+networks:
+  reportsnet:
+
+volumes:
+  pgdata:
+  jasper_webapp:
+  jasper_license:
+  jasper_customization:
