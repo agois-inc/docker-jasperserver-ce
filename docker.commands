@@ -2,7 +2,7 @@
 docker build -t jasperserver-ce .
 
 # Tag the local Docker image with the Docker Hub username/repo:version
-docker tag jasperserver-community agois/jasperserver-ce:6.4.0
+docker tag jasperserver-ce agois/jasperserver-ce:6.4.0
 
 # Push new Docker image to Docker Hi
 docker push agois/jasperserver-ce:6.4.0
