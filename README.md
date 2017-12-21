@@ -82,3 +82,12 @@ volumes:
   jasper_customization:
 ```
 
+*.env*
+```
+DB_USER=postgres
+DB_PASSWORD=postgres
+DB_PORT=5432
+DB_NAME=jasperserver
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=postgres
+```
