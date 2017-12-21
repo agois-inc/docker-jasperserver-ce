@@ -26,12 +26,12 @@ docker build -t jasperserver-ce .
 
 Tag the local Docker image with the Docker Hub username/repo:version
 ```bash
-docker tag jasperserver-ce agois/jasperserver-ce:6.4.0
+docker tag jasperserver-ce agois/jasperserver-ce:6.4.2
 ```
 
 Push new Docker image to Docker Hub
 ```bash
-docker push agois/jasperserver-ce:6.4.0
+docker push agois/jasperserver-ce:6.4.2
 ```
 
 # Using with Docker Compose
@@ -48,7 +48,7 @@ version: '3'
 
 services:
   jasperserver:
-    image: agois/jasperserver-ce:6.4.0
+    image: agois/jasperserver-ce:6.4.2
     ports:
       - "8080:8080"
       - "8443:8443"
