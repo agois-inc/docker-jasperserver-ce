@@ -1,13 +1,8 @@
-# Copyright (c) 2016. TIBCO Software Inc.
-# This file is subject to the license terms contained
-# in the license file that is distributed with this file.
-# version: 6.3.0-v1.0.4
-
 version: '3'
 
 services:
   jasperserver:
-    image: agois/jasperserver-ce:6.4.0
+    image: agois/jasperserver-ce:6.4.2
     ports:
       - "8080:8080"
       - "8443:8443"
