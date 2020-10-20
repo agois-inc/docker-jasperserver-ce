@@ -1,28 +1,53 @@
-version: '3'
+version: '3.8'
 
 services:
-  jasperserver:
-    image: agois/jasperserver-ce:6.4.2
-    ports:
-      - "8080:8080"
-      - "8443:8443"
-    depends_on:
-      - jasperdatabase
-    env_file: .env
-    environment:
-      - DB_HOST=jasperdatabase
-    volumes:
-      - jasper_webapp:/usr/local/tomcat/webapps/jasperserver
-      - jasper_license:/usr/local/share/jasperreports-ce/license 
-      - jasper_customization:/usr/local/share/jasperreports-ce/customization
-    networks:
-      - reportsnet
 
-  jasperdatabase:
-    image: postgres:9.5
-    env_file: .env
+  postgres:    
+    image: postgres:9.5.22
+    ports:
+      - "5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
+    networks:
+      - reportsnet
+    env_file: jasper.env
+
+  jasperserver:
+    image: jasperserver-ce:7.8.0
+    ports:
+      - "11001:8080"
+      - "11443:8443"
+    depends_on:
+      - jasperserver-init      
+    env_file: jasper.env
+    environment:
+      - DB_HOST=postgres
+    volumes:
+      - jasper_webapp:/usr/local/tomcat/webapps/jasperserver
+      - jasper_home:/usr/local/share/jasperserver
+      - jasper_license:/usr/local/share/jasperserver/license 
+      - jasper_keystore:/usr/local/share/jasperserver/keystore
+      - jasper_customization:/usr/local/share/jasperserver/customization
+    networks:
+      - reportsnet
+    command: ["/entrypoint-ce.sh", "run"]
+#     command: ["/wait-for-container-to-exit.sh", "jasperserver-ce-init%3A7.8.0", "-t" , "30", "--", "/entrypoint-ce.sh", "run"]
+
+  jasperserver-init:
+    image: jasperserver-ce-init:7.8.0
+    deploy:
+      restart_policy:
+        condition: none
+    env_file: jasper.env
+    volumes:
+      - jasper_init_home:/usr/local/share/jasperserver
+      - jasper_keystore:/usr/local/share/jasperserver/keystore
+    environment:
+      - DB_HOST=postgres
+      - JRS_DBCONFIG_REGEN=true
+    depends_on:
+      - postgres
+    command: ["/wait-for-it.sh", "postgres:5432", "-t" , "30", "--", "/entrypoint-cmdline-ce.sh", "init"]
     networks:
       - reportsnet
 
@@ -31,6 +56,9 @@ networks:
 
 volumes:
   pgdata:
+  jasper_home:
   jasper_webapp:
   jasper_license:
+  jasper_keystore:
   jasper_customization:
+  jasper_init_home:

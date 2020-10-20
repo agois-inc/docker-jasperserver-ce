@@ -6,7 +6,6 @@
 
 # This script sets up and runs JasperReports Server on container start.
 # Default "run" command, set in Dockerfile, executes run_jasperserver.
-# Use jasperserver-pro-cmdline to initialize the repository database
 
 # Sets script to fail if any command fails.
 set -e
@@ -21,12 +20,10 @@ run_jasperserver() {
   test_database_connection
   
   # Because default_master.properties could change on any launch,
-  # always do deploy-webapp-pro.
+  # always do deploy-webapp.
 
-  execute_buildomatic deploy-webapp-pro
-
-  # setup phantomjs
-  config_chrome
+  # execute_buildomatic deploy-webapp-pro
+  execute_buildomatic deploy-webapp-ce
 
   # If JRS_HTTPS_ONLY is set, sets JasperReports Server to
   # run only in HTTPS. Update keystore and password if given
@@ -34,23 +31,6 @@ run_jasperserver() {
 
   # start tomcat
   exec env JAVA_OPTS="$JAVA_OPTS" catalina.sh run
-}
-
-
-
-
-config_chrome() {
-  # if chrome binary is present, update JasperReports Server config.
-  if [[ -x "/usr/bin/chromium" ]]; then
-    PATH_CHROME='\/usr\/bin\/chromium'
-    cd $CATALINA_HOME/webapps/jasperserver/WEB-INF
-    sed -i -r "s/(.*)(chrome.path=)(.*)/\2$PATH_CHROME/" \
-      js.config.properties
-  elif [[ "$(ls -A /usr/bin/chromium)" ]]; then
-    echo "Warning: /usr/bin/chromium is not executable, \
-but /usr/local/share/chromium exists. Chrome \
-is not correctly configured."
-  fi
 }
 
 config_ports_and_ssl() {
@@ -66,7 +46,7 @@ config_ports_and_ssl() {
 
   if "$JRS_HTTPS_ONLY" = "true" ; then
     echo "Setting HTTPS only within JasperReports Server"
-    cd $CATALINA_HOME/webapps/jasperserver-pro/WEB-INF
+    cd $CATALINA_HOME/webapps/jasperserver/WEB-INF
     xmlstarlet ed --inplace \
       -N x="http://java.sun.com/xml/ns/j2ee" -u \
       "//x:security-constraint/x:user-data-constraint/x:transport-guarantee"\
@@ -90,7 +70,7 @@ config_ports_and_ssl() {
 			if [[ -f "$keystore" ]]; then
 			  echo "Deploying SSL Keystore $keystore"
 			  cp "${keystore}" /root
-			  xmlstarlet ed --inplace --subnode "/Server/Service/Connector[@port='${HTTPS_PORT:-8443}']" --type elem \ 
+			  xmlstarlet ed --inplace --subnode "/Server/Service/Connector[@port='${HTTPS_PORT:-8443}']" --type elem \
 					--var connector-ssl '$prev' \
 				--update '$connector-ssl' --type attr -n port -v "${HTTPS_PORT:-8443}" \
 				--update '$connector-ssl' --type attr -n keystoreFile  -v "/root/${keystore}" \
@@ -115,12 +95,11 @@ config_ports_and_ssl() {
 
 }
 
-
 apply_customizations() {
   # unpack zips (if exist) from path
   # ${MOUNTS_HOME}/customization
   # to JasperReports Server web application path
-  # $CATALINA_HOME/webapps/jasperserver-pro/
+  # $CATALINA_HOME/webapps/jasperserver/
   # file sorted with natural sort
   JRS_CUSTOMIZATION=${JRS_CUSTOMIZATION:-${MOUNTS_HOME}/customization}
   if [ -d "$JRS_CUSTOMIZATION" ]; then
@@ -143,7 +122,7 @@ apply_customizations() {
 		  else
 			echo "Unzipping $customization into JasperReports Server webapp"
 			unzip -o -q "$customization" \
-				-d $CATALINA_HOME/webapps/jasperserver-pro/
+				-d $CATALINA_HOME/webapps/jasperserver/
 		  fi
 		fi
 	  done
@@ -164,7 +143,6 @@ apply_customizations() {
 	fi
 }
 
-
 initialize_deploy_properties
 
 case "$1" in
@@ -175,4 +153,3 @@ case "$1" in
   *)
     exec "$@"
 esac
-
